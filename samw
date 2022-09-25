@@ -1,0 +1,17 @@
+#!/bin/bash
+set -eu
+SAMW_IMAGE=samw:1.0.0
+
+set +e
+SAMW_IMAGE_EXISTS=$(docker image ls | awk '{print $1}' | grep -x ${SAMW_IMAGE})
+set -e
+
+if [ -z "$SAMW_IMAGE_EXISTS" ]; then
+  docker build -t $SAMW_IMAGE ./.tools/samw
+fi
+
+docker run -it \
+   -v "$PWD":/var/task \
+   -v /var/run/docker.sock:/var/run/docker.sock \
+   -p 3000:3000 \
+   $SAMW_IMAGE "$@"
